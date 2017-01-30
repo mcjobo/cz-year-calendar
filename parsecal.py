@@ -100,13 +100,17 @@ def populate_list(event_list, start, end):
                 end = end.date() if type(end) is datetime.datetime else end
                 rule_start = start if start > dtstart else dtstart
                 rule_end = end if end < dtend else dtend
-                for date in dates.daterange2(rule_start, rule_end, False):
-                    entry = {}
-                    entry["data"] = events["data"]
-                    entry["summary"] = event.summary.value
-                    entry["start"] = date if type(date) is datetime.date else date.date()
-                    entry["end"] = date if type(date) is datetime.date else date.date()
-                    result_list.append(entry)
+                daterange = dates.daterange2(rule_start, rule_end, False)
+                # for date in daterange:
+                entry = {}
+                entry["data"] = events["data"]
+                entry["summary"] = event.summary.value
+                # entry["start"] = date if type(date) is datetime.date else date.date()
+                # entry["end"] = date if type(date) is datetime.date else date.date()
+                entry["start"] = rule_start if type(rule_start) is datetime.date else rule_start.date()
+                entry["end"] = rule_end if type(rule_end) is datetime.date else rule_end.date()
+                entry["multi"] = len(daterange) > 1
+                result_list.append(entry)
 
     res = sort_events(result_list)
     return res

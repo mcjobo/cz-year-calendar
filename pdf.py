@@ -3,6 +3,7 @@ from reportlab.lib.pagesizes import A4, landscape
 import dates
 from dateutil.relativedelta import relativedelta
 from calendar import monthrange
+import datetime
 
 
 borderLeft = 20
@@ -20,20 +21,49 @@ def calc_dimension(can):
     return tup
 
 
-def draw_rect(can, month, day, weekend, holiday=False):
-    print(month, day, weekend, holiday)
-    tup = calc_dimension(can)
-    cell_width = tup[0]
-    cell_height = tup[1]
-    if holiday:
-      can.setFillColorRGB(0.1,0.1,0.5)
-      can.rect((month) * cell_width + borderLeft + cell_width -3, (31 - day) * cell_height + borderBottom, 3, cell_height,
-               fill=True)
-    else:
-      if weekend:
-        can.setFillColorRGB(0.1,0.1,0.7)
-      can.rect((month) * cell_width + borderLeft, (31 - day) * cell_height + borderBottom, cell_width, cell_height, fill=weekend)
-    can.setFillColorRGB(0, 0, 0)
+def calculate_cell(canvas,  month, day):
+    month = month-1 if month <= 6 else month - 7
+    pagesize = canvas._pagesize
+    cell_width = (pagesize[0] - borderVertical) / 6
+    cell_height = (pagesize[1] - borderHorizontal) / 32
+    cell_x = (month) * cell_width + borderLeft
+    cell_y = (31 - day) * cell_height + borderBottom
+    return {"x":cell_x, "y":cell_y, "width":cell_width, "height":cell_height}
+
+
+def draw_rect(canvas, month, day, fill):
+    print(month, day)
+    cell = calculate_cell(canvas, month, day)
+    fillRect = False
+    if fill is not None:
+        fillRect = True
+        canvas.setFillColorRGB(fill[0], fill[1], fill[2])
+
+    canvas.rect(cell["x"], cell["y"], cell["width"], cell["height"], fill=fillRect)
+    canvas.setFillColorRGB(0, 0, 0)
+
+
+
+
+def draw_multi_day_rect(canvas, fromdate, todate, fill):
+    dayList = dates.daterange2(fromdate, todate, False)
+    canvas.setFillColorRGB(fill[0], fill[1], fill[2])
+    for date in dayList:
+        cell = calculate_cell(canvas, date.month, date.day)
+        canvas.rect(cell["x"]+cell["width"]-15, cell["y"], 15, cell["height"], fill=True, stroke=0)
+
+    canvas.setFillColorRGB(0, 0, 0)
+
+
+def draw_vertical_string(canvas, fromdate, todate, text):
+    canvas.saveState()
+    cell = calculate_cell(canvas, todate.month, todate.day-1)
+    totalHeight = len(dates.daterange2(fromdate, todate, False))*cell["height"]
+    canvas.translate(cell["x"]+cell["width"]-3,  cell["y"]+(totalHeight/2))
+    canvas.rotate(90)
+    canvas.drawCentredString(0, 0, text)
+    canvas.restoreState()
+
 
 
 def draw_string(can, month, day, text, indent_bottom, indent_left, center = True):
@@ -68,6 +98,10 @@ def draw_month_header(canvas, start, end):
         draw_string(canvas, counter, -1, month, 5, cell_width/2, False)
         counter += 1
 
+
+def draw_multi_date(canvas, event):
+    draw_multi_day_rect(canvas, event["start"], event["end"], [1, 0.6, 0.6])
+    draw_vertical_string(canvas, event["start"], event["end"], event["summary"])
 
 def draw_date(canvas, event_list):
     tup = calc_dimension(canvas)
@@ -120,14 +154,14 @@ def create_pdf(name):
 
 
 def create_Site(canvas, start, end, header):
-    for month in range(6):
-      for day in range(32):
-        date = start + relativedelta(months=month)+relativedelta(days=day-1)
+    for month in range(1,7):
+      for day in range(0,32):
+        date = start + relativedelta(months=month-1)+relativedelta(days=day-1)
         weekend = (date.isoweekday() == 7)
-        month_days = monthrange(date.year, start.month+month)
+        month_days = monthrange(date.year, start.month+month-1)
         is_day = day >= 1 and day <= month_days[1]
         # print("date: ", date,date.isoweekday(), weekend, is_day, month, day, month_days)
-        draw_rect(canvas, month, day, weekend and is_day)
+        draw_rect(canvas, month, day, [0.2,0.6,1] if weekend and is_day else None)
 
     canvas.setFont("Helvetica", 9)
     draw_days_str(canvas, start, end)
@@ -165,4 +199,4 @@ def draw_legend(canvas, legend1, legend2):
 
 def draw_holiday(canvas, date):
   print(date)
-  draw_rect(canvas, date.month-1 if date.month <=6 else date.month-7, date.day, False, True)
+  draw_rect(canvas, date.month , date.day, [0.2,0.8,1])

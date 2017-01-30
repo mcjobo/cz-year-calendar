@@ -1,20 +1,27 @@
+# -*- coding: utf-8 -*-
+
 import pdf
 import datetime
 import parsecal
 import pytz
 import caldav2
+import dates
 
 tz = pytz.timezone('Europe/Berlin')
 
 def draw_page(canvas,start,end):
-    pdf.create_Site(canvas, start, end, "CZ Rostock 2017")
-    pdf.draw_legend(canvas, "AG - Afrikanische Gruppe / GBA + MAT - Gemeindebewegerabend & MA-Treffen / GC - Gemeinde College / GF - Gebetsfrühstück / GLT - Gemeindeleitertreffen","IG Iranische Gruppe / JA - Jugendabend / KU - Konfirmandenunterricht / MAT KiGoDi - MA-Treffen Kindergottesdienst / PT - Planungstreffen")
 
     print("parse holiday")
     holiday = parsecal.read_holiday()
     holiday_list = parsecal.populate_list(holiday, start, end)
     for holiday in holiday_list:
-        pdf.draw_holiday(canvas, holiday["start"])
+        daterange = dates.daterange2(holiday["start"], holiday["end"], False)
+        for date in daterange:
+            pdf.draw_holiday(canvas, date)
+
+    pdf.create_Site(canvas, start, end, "CZ Rostock 2017")
+    pdf.draw_legend(canvas, "AG - Afrikanische Gruppe / GBA + MAT - Gemeindebewegerabend & MA-Treffen / GC - Gemeinde College / GF - Gebetsfrühstück","IG Iranische Gruppe / JA - Jugendabend / KU - Konfirmandenunterricht / MAT KiGoDi - MA-Treffen Kindergottesdienst / SD - Segnungsdienst")
+
 
     event_list = caldav2.get_events(start, end)
 
@@ -24,8 +31,10 @@ def draw_page(canvas,start,end):
     counter = 1
     entry_print = []
     for entry in list:
-        ent = {"date":entry["start"], "summary": entry["summary"]}
-        if entry["start"] == date:
+        ent = {"date":entry["start"], "summary": entry["summary"], "multi": entry["multi"]}
+        if entry["multi"]:
+            pdf.draw_multi_date(canvas, entry)
+        elif entry["start"] == date:
             entry_print.append(ent)
         else:
             date = entry["start"]
