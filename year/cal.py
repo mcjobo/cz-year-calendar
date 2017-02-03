@@ -46,15 +46,19 @@ def draw_page(canvas,start,end):
 
     pdf.draw_date(canvas, entry_print)
 
-canvas = pdf.create_pdf("cal.pdf")
-start = datetime.datetime(2017,1,1, tzinfo=tz)
-end = datetime.datetime(2017,6,30, tzinfo=tz)
-draw_page(canvas,start,end)
+
+def generate():
+    canvas = pdf.create_pdf("static/cal.pdf")
+    start = datetime.datetime(2017,1,1, tzinfo=tz)
+    end = datetime.datetime(2017,6,30, tzinfo=tz)
+    draw_page(canvas,start,end)
 
 
-pdf.add_page(canvas)
-start = datetime.datetime(2017, 7, 1,  tzinfo=tz)
-end = datetime.datetime(2017, 12, 31, tzinfo=tz)
-draw_page(canvas,start,end)
+    pdf.add_page(canvas)
+    start = datetime.datetime(2017, 7, 1,  tzinfo=tz)
+    end = datetime.datetime(2017, 12, 31, tzinfo=tz)
+    draw_page(canvas,start,end)
 
-pdf.save(canvas)
+    pdf.save(canvas)
+
+#generate()
