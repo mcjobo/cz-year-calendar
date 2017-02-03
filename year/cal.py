@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import pdf
 import datetime
-import parsecal
+
+from year import caldav2
+from year import dates
+from year import pdf
 import pytz
-import caldav2
-import dates
+
+from year import parsecal
 
 tz = pytz.timezone('Europe/Berlin')
 
@@ -20,7 +22,7 @@ def draw_page(canvas,start,end):
             pdf.draw_holiday(canvas, date)
 
     pdf.create_Site(canvas, start, end, "CZ Rostock 2017")
-    pdf.draw_legend(canvas, "AG - Afrikanische Gruppe / GBA + MAT - Gemeindebewegerabend & MA-Treffen / GC - Gemeinde College / GF - Gebetsfrühstück","IG Iranische Gruppe / JA - Jugendabend / KU - Konfirmandenunterricht / MAT KiGoDi - MA-Treffen Kindergottesdienst / SD - Segnungsdienst")
+    pdf.draw_legend(canvas, "AG - Afrikanische Gruppe / GBA + MAT - Gemeindebewegerabend & MA-Treffen / GC - Gemeinde College / GF - Gebetsfrühstück", "IG Iranische Gruppe / JA - Jugendabend / KU - Konfirmandenunterricht / MAT KiGoDi - MA-Treffen Kindergottesdienst / SD - Segnungsdienst")
 
 
     event_list = caldav2.get_events(start, end)

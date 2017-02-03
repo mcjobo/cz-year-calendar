@@ -1,10 +1,10 @@
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import A4, landscape
-import dates
-from dateutil.relativedelta import relativedelta
 from calendar import monthrange
-import datetime
 
+from dateutil.relativedelta import relativedelta
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.pdfgen import canvas
+
+from year import dates
 
 borderLeft = 20
 borderRight = 20
@@ -58,7 +58,7 @@ def draw_multi_day_rect(canvas, fromdate, todate, fill):
 def draw_vertical_string(canvas, fromdate, todate, text):
     canvas.saveState()
     cell = calculate_cell(canvas, todate.month, todate.day-1)
-    totalHeight = len(dates.daterange2(fromdate, todate, False))*cell["height"]
+    totalHeight = len(dates.daterange2(fromdate, todate, False)) * cell["height"]
     canvas.translate(cell["x"]+cell["width"]-3,  cell["y"]+(totalHeight/2))
     canvas.rotate(90)
     canvas.drawCentredString(0, 0, text)
@@ -161,7 +161,7 @@ def create_Site(canvas, start, end, header):
         month_days = monthrange(date.year, start.month+month-1)
         is_day = day >= 1 and day <= month_days[1]
         # print("date: ", date,date.isoweekday(), weekend, is_day, month, day, month_days)
-        draw_rect(canvas, month, day, [0.2,0.6,1] if weekend and is_day else None)
+        draw_rect(canvas, month, day, [0.85,0.85,1] if weekend and is_day else None)
 
     canvas.setFont("Helvetica", 9)
     draw_days_str(canvas, start, end)
@@ -199,4 +199,4 @@ def draw_legend(canvas, legend1, legend2):
 
 def draw_holiday(canvas, date):
   print(date)
-  draw_rect(canvas, date.month , date.day, [0.2,0.8,1])
+  draw_rect(canvas, date.month , date.day, [0.95,0.95,1])

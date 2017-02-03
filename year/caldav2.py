@@ -6,7 +6,7 @@ from caldav.elements import dav, cdav
 from configobj import ConfigObj
 
 
-config = ConfigObj("settings.ini")
+config = ConfigObj("year/settings.ini")
 
 def connect():
   # Caldav url
