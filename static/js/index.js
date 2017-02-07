@@ -13,3 +13,20 @@ $("#generate-calendar").click(function(e) {
     }});
     e.preventDefault();
 });
+
+$(document).ready(function(){
+
+
+$.ajaxSetup({
+    statusCode: {
+    //        console.log('status code');
+        401: function(err){
+            console.log('Login Failed.', err.responseJSON);
+            window.location.href = "/static/login.html";
+        // or whatever...
+        }
+    }
+  });
+
+
+});

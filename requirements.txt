@@ -1,7 +1,9 @@
+# required libs for the calendar generation
 reportlab
 babel
 py-dateutil
 vobject
 caldav
 configobj
+# required for the website
 cherrypy

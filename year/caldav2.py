@@ -10,7 +10,8 @@ config = ConfigObj("year/settings.ini")
 
 def connect():
   # Caldav url
-  url = "https://bolay.org/dav/jorg@bolay.org/calendar"
+  #url = "https://bolay.org/dav/jorg@bolay.org/calendar"
+  url = "https://bolay.org/dav/jorg@bolay.org/CZ-Rostock"
 
   client = caldav.DAVClient(url, username=config["User"]["username"], password=config["User"]["password"])
   #principal = client.principal()
@@ -19,7 +20,7 @@ def connect():
   # print ("\nClient: ", client)
   # print ("\nPrinzipal: ", principal)
 
-  calendar = caldav.Calendar(client, url="https://bolay.org/dav/jorg@bolay.org/CZ-Rostock")
+  calendar = caldav.Calendar(client, url=url)
   #principal.calendar(cal_id="https://bolay.org/dav/jorg@bolay.org/CZ-Rostock")
   # print ("The Cal: ", calendar)
   #prop = calendar.get_properties([dav.DisplayName()])
