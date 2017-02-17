@@ -9,12 +9,14 @@ from configobj import ConfigObj
 redirect = "http://localhost:8080/redirect"
 config = ConfigObj("year/settings.ini")
 
-def authorize():
+def check_authorized():
     session = cherrypy.session
     if 'ident' not in session:
         ident = hashlib.sha256(os.urandom(1024)).hexdigest()
         cherrypy.session["ident"] = ident
     print("session", session["ident"])
+    if "user" not in session:
+        raise cherrypy.HTTPError(401)
     return "user" in session
     # return False
 
@@ -78,5 +80,5 @@ def decode_id_token(id_token):
     return jwebtoken
 
 def authorize_user(useremail):
-    print("authorized", useremail, config["autorization"]["user_mails"])
-    return True if useremail in config["autorization"]["user_mails"] else False
+    print("authorized", useremail, config["authorization"]["user_mails"])
+    return True if useremail in config["authorization"]["user_mails"] else False

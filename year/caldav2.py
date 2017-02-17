@@ -1,30 +1,19 @@
 # -*- coding: utf-8 -*-
 
-from datetime import datetime
 import caldav
-from caldav.elements import dav, cdav
 from configobj import ConfigObj
 
 
-config = ConfigObj("year/settings.ini")
+
 
 def connect():
   # Caldav url
   #url = "https://bolay.org/dav/jorg@bolay.org/calendar"
-  url = "https://bolay.org/dav/jorg@bolay.org/CZ-Rostock"
+  config = ConfigObj("year/settings.ini")
+  url = config["server"]["url"]
 
-  client = caldav.DAVClient(url, username=config["User"]["username"], password=config["User"]["password"])
-  #principal = client.principal()
-  # calendars = principal.calendars()
-
-  # print ("\nClient: ", client)
-  # print ("\nPrinzipal: ", principal)
-
+  client = caldav.DAVClient(url, username=config["user"]["username"], password=config["user"]["password"])
   calendar = caldav.Calendar(client, url=url)
-  #principal.calendar(cal_id="https://bolay.org/dav/jorg@bolay.org/CZ-Rostock")
-  # print ("The Cal: ", calendar)
-  #prop = calendar.get_properties([dav.DisplayName()])
-  # print ("\nProperties: ", prop)
 
   return calendar
 
@@ -40,18 +29,6 @@ def iter_event(results):
     event_values = {}
     event_values["data"] = event.data
     event_list.append(event_values)
-    #print ("Found", event)
-    #print (event.get_properties([dav.DisplayName()]))
-    # print (event.instance.vevent.summary.name, " ", event.instance.vevent.summary.value)
-    # print(event.instance.vevent.dtstart.name, " ", event.instance.vevent.dtstart.value)
-    # print(event.instance.vevent.dtend.name, " ", event.instance.vevent.dtend.value)
-    # if hasattr(event.instance.vevent, 'rrule'):
-    #   print(event.instance.vevent.rrule.name, " ", event.instance.vevent.rrule.value)
-    #
-    # print (event.instance.vevent.__dict__)
-    # print(event.data)
-    #print(event.instance.__dict__)
-    #print ("\ndict: ", event.instance.vevent.summary.__dict__)
   return event_list
 
 def get_events(start,end):
