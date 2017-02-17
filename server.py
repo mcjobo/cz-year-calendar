@@ -1,15 +1,16 @@
 import os, os.path
 import json
 import cherrypy
+from cherrypy.lib.static import serve_file
 from year import cal
 import authorization
 
 
 
 class StringGenerator(object):
-    @cherrypy.expose
-    def index(self):
-        return open('static/index2.html')
+    # @cherrypy.expose
+    # def index(self):
+    #     return open('static/index2.html')
 
     @cherrypy.expose
     def generate(self, **params):
@@ -19,13 +20,13 @@ class StringGenerator(object):
         cal.set_settings(params)
         cal.generate()
 
-        result = {"pdfUrl": "/static/cal.pdf"}
+        result = {"pdfUrl": "cal.pdf"}
         return json.dumps(result)
 
 
     @cherrypy.expose
     def downloadurl(self, **params):
-        result = {"pdfUrl": "/static/cal.pdf"}
+        result = {"pdfUrl": "cal.pdf"}
         return json.dumps(result)
 
 
@@ -40,7 +41,7 @@ class StringGenerator(object):
         print("getting: ", params)
         authorization.validate_state_token(params)
         authorization.exchange_authorization_token("google", params)
-        return open('static/index2.html')
+        raise cherrypy.HTTPRedirect('/')
 
 
     @cherrypy.expose
