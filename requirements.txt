@@ -8,4 +8,4 @@ configobj
 # required for the website
 cherrypy
 # webseite + authentication
-jwt
+pyjwt
