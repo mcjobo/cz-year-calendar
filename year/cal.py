@@ -53,7 +53,7 @@ def draw_page(canvas,start,end):
 
 
 def generate():
-    canvas = pdf.create_pdf("static/cal.pdf")
+    canvas = pdf.create_pdf("build/cal.pdf")
     start = datetime.datetime(2017,1,1, tzinfo=tz)
     end = datetime.datetime(2017,6,30, tzinfo=tz)
     draw_page(canvas,start,end)

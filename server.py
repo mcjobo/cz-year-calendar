@@ -8,9 +8,9 @@ import authorization
 
 
 class StringGenerator(object):
-    # @cherrypy.expose
-    # def index(self):
-    #     return open('static/index2.html')
+    @cherrypy.expose
+    def index(self):
+        return open('build/index2.build.html')
 
     @cherrypy.expose
     def generate(self, **params):
@@ -26,6 +26,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def downloadurl(self, **params):
+        print("downloadurl")
         result = {"pdfUrl": "cal.pdf"}
         return json.dumps(result)
 
