@@ -18,7 +18,7 @@ RUN git clone https://github.com/mcjobo/cz-year-calendar
 RUN pip3 install -r /cz-year-calendar/requirements.txt
 
 # Expose ports
-EXPOSE 8080
+EXPOSE 7080
 
 # Set the default directory where CMD will execute
 WORKDIR /cz-year-calendar
