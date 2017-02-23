@@ -96,7 +96,16 @@
           </app-toolbar>
         </app-header>
         <div class="layout horizontal wrap center-justified	">
-        <paper-card heading="Download Jahreskalender" >
+            <paper-card heading="Generierung Jahreskalender" >
+                <div class="card-content">
+                  Zur neugenerierung des Jahreskalender bitte den Generieren Button drücken
+                </div>
+                <div class="card-actions">
+                  <paper-button onclick="generateButton()">Generieren</paper-button>
+                </div>
+              </paper-card>
+
+            <paper-card heading="Download Jahreskalender" >
             <div class="card-content">
               Hier kann der aktuelle Jahrekalendar herunter geladen werden.
             </div>
@@ -105,14 +114,7 @@
             </div>
           </paper-card>
 
-        <paper-card heading="Generierung Jahreskalender" >
-            <div class="card-content">
-              Zur neugenerierung des Jahreskalender bitte den Generieren Button drücken
-            </div>
-            <div class="card-actions">
-              <paper-button onclick="generateButton()">Generieren</paper-button>
-            </div>
-          </paper-card>
+
         </div>
         <button class="heading" onclick="toggle('#collapse1')">Einstellungen</button>
         <iron-collapse id="collapse1">
@@ -129,11 +131,11 @@
             <div>
                 <paper-progress indeterminate class="slow red" hidden$="{{!activePageReq}}"></paper-progress>
             </div>
-            <p hidden$="{{!activePageReq}}">Bitte warten sie bis der Kalendar generiert wurde.</p>
-            <p hidden$="{{activePageReq}}">Der Kalender wurde erfolgreich erzeugt bitte Dialog schliesen oder Dokument öffnen.</p>
+            <p hidden$="{{!activePageReq}}">Bitte warten Sie, bis der Kalendar generiert wurde.</p>
+            <p hidden$="{{activePageReq}}">Der Kalender wurde erfolgreich erzeugt. Bitte Dialog schliessen oder Dokument öffnen.</p>
           <div class="buttons">
               <paper-button hidden$="{{activePageReq}}" dialog-confirm autofocus onclick="openDocument()">Öffnen</paper-button>
-              <paper-button dialog-confirm autofocus>Schliesen</paper-button>
+              <paper-button dialog-confirm autofocus>Schliessen</paper-button>
           </div>
         </paper-dialog>
 
@@ -148,9 +150,9 @@
             </div>
         </paper-dialog>
 
-        <iron-ajax id="ajax" url="/settings" last-response="{{data}}" auto></iron-ajax>
-        <iron-ajax id="generate" url="/generate" last-response="{{generate}}" content-type="application/json" params="{{data}}" loading="{{activePageReq}}"></iron-ajax>
-        <iron-ajax id="downloadurl" url="/downloadurl" last-response="{{url}}" auto></iron-ajax>
+        <iron-ajax id="ajax" url="settings" last-response="{{data}}" auto></iron-ajax>
+        <iron-ajax id="generate" url="generate" last-response="{{generate}}" content-type="application/json" params="{{data}}" loading="{{activePageReq}}"></iron-ajax>
+        <iron-ajax id="downloadurl" url="downloadurl" last-response="{{url}}" auto></iron-ajax>
     </template>
         <script>
             var dom = document.getElementById("dom-bind");
@@ -161,7 +163,9 @@
                 ajax.addEventListener('error', function(event){
                     console.log("error", event);
                     console.log('Login Failed.', event);
-                    window.location.href = "/login.html";
+                    if(401 == event.detail.request.xhr.status){
+                        window.location.href = "build/login.html";
+                    }
                 });
                 generate.addEventListener('error', function(event){
                     console.log("error", event, generate.lastError);

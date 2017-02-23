@@ -4,35 +4,47 @@ import jwt
 import cherrypy
 import os
 import hashlib
+import json
 from configobj import ConfigObj
 
-redirect = "http://localhost:8080/redirect"
+# redirect = cherrypy.url() + "/calendar/redirect"
+# redirect = "http://localhost:8080" "/calendar/redirect"
 config = ConfigObj("year/settings.ini")
 
 def check_authorized():
-    session = cherrypy.session
-    if 'ident' not in session:
+    cookie = {} if "calendar"  not in cherrypy.request.cookie else json.loads(cherrypy.request.cookie["calendar"].value)
+    if 'ident' not in cookie:
         ident = hashlib.sha256(os.urandom(1024)).hexdigest()
-        cherrypy.session["ident"] = ident
-    print("session", session["ident"])
-    if "user" not in session:
+        cookie["ident"] = ident
+        #cherrypy.response.cookie["calendar"] = json.dumps(cookie)
+
+        realCookie = cherrypy.response.cookie
+        realCookie["calendar"] = json.dumps(cookie)
+        realCookie["calendar"]["path"] = "/"
+
+        print("created new ident key")
+    # print("cookie", cherrypy.request.cookie["ident"])
+    if "user" not in cookie:
         raise cherrypy.HTTPError(401)
-    return "user" in session
+    return "user" in cookie
     # return False
 
 
 def get_authorization_url(provider):
+    application = cherrypy.tree.apps['/calendar']
+    redirect = application.config['global']['redirect']
+    cookie = json.loads(cherrypy.request.cookie["calendar"].value)
+    print("redirect url: ", redirect, cookie, cherrypy.url() + "/calendar/redirect")
     doc = get_discovery_document(provider)
     url = doc["authorization_endpoint"] + "?"
     url += "client_id=" + get_client_id(provider)
     url += "&response_type=" + "code"
     url += "&redirect_uri=" + redirect
     url += "&scope=" + "openid%20email"
-    url += "&state=" + cherrypy.session["ident"]
-    if "loginhint" in cherrypy.request.cookie:
-        print("loginhint", cherrypy.request.cookie.keys())
-        print("loginhint2", cherrypy.request.cookie["loginhint"])
-        url += "&login_hint=" + str(cherrypy.request.cookie["loginhint"])
+    url += "&state=" + cookie["ident"]
+    if "loginhint" in cookie:
+        print("loginhint", cookie["loginhint"])
+        url += "&login_hint=" + str(cookie["loginhint"])
     return url
 
 def get_discovery_document(provider):
@@ -53,12 +65,15 @@ def get_client_secret(provider):
 
 
 def validate_state_token(params):
-    print("state token: ", params["state"], cherrypy.session["ident"])
-    if params["state"] != cherrypy.session["ident"]:
+    cookie = json.loads(cherrypy.request.cookie["calendar"].value)
+    print("state token: ", params["state"], cookie)
+    if params["state"] != cookie["ident"]:
         raise cherrypy.HTTPError(403)
 
 
 def exchange_authorization_token(provider, params):
+    application = cherrypy.tree.apps['/calendar']
+    redirect = application.config['global']['redirect']
     url = get_discovery_document(provider)["token_endpoint"]
     url += "?code=" + params["code"]
     url += "&client_id=" + get_client_id(provider)
@@ -69,9 +84,16 @@ def exchange_authorization_token(provider, params):
     print("result", token)
     jwt = decode_id_token(token["id_token"])
     if authorize_user(jwt["email"]):
-        print("authorized")
-        cherrypy.session["user"] = jwt["email"]
-        cherrypy.response.cookie["loginhint"] = jwt["email"]
+        print("authorized", jwt["email"])
+        cookie = json.loads(cherrypy.request.cookie["calendar"].value)
+        cookie["user"] = jwt["email"]
+        cookie["loginhint"] = jwt["email"]
+
+        realCookie = cherrypy.response.cookie
+        realCookie["calendar"] = json.dumps(cookie)
+        realCookie["calendar"]["path"] = "/"
+        #cherrypy.response.cookie["calendar"] = realCookie
+        #cherrypy.response.cookie["calendar"] = json.dumps(cookie)
 
 
 def decode_id_token(id_token):

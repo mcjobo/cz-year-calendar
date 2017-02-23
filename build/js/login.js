@@ -4,7 +4,7 @@ var google_url = "";
 $(document).ready(function(){
 
     $.ajax({
-        url: "/get_auth_request",
+        url: "/calendar/get_auth_request",
         data: {"provider": 'google'},
         success: function(result){
             console.log("url: ", result);

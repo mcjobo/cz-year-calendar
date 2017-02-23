@@ -7,13 +7,18 @@ import authorization
 
 
 
-class StringGenerator(object):
+class Calendar(object):
     @cherrypy.expose
     def index(self):
-        return open('build/index2.build.html')
+        print("index cookie: ", cherrypy.request.cookie, cherrypy.response.headers)
+        application = cherrypy.tree.apps['/calendar']
+        host = application.config['global']['index']
+        print("host: ", host, application)
+        return open(host)
 
     @cherrypy.expose
     def generate(self, **params):
+        print("generate cookie: ", cherrypy.request.cookie)
         print("params", params)
         authorization.check_authorized()
 
@@ -26,7 +31,7 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def downloadurl(self, **params):
-        print("downloadurl")
+        print("downloadurl cookie: ", cherrypy.request.cookie)
         result = {"pdfUrl": "cal.pdf"}
         return json.dumps(result)
 
@@ -34,22 +39,28 @@ class StringGenerator(object):
 
     @cherrypy.expose
     def get_auth_request(self, provider):
+        print("get_auth_request cookie: ", cherrypy.request.cookie)
         return authorization.get_authorization_url(provider)
 
 
     @cherrypy.expose
     def redirect(self, **params):
+        print("redirect cookie: ", cherrypy.request.cookie)
         print("getting: ", params)
         authorization.validate_state_token(params)
         authorization.exchange_authorization_token("google", params)
-        raise cherrypy.HTTPRedirect('/')
+        #return "<!DOCTYPE html><html><head></head><body>Hello world</body></html>"
+        # return "<!DOCTYPE html><html><head></head><body><script>window.location.replace('https://bolay.org/calendar/')</script></body></html>"
+        raise cherrypy.HTTPRedirect('https://bolay.org/calendar/')
 
 
     @cherrypy.expose
     def settings(self, **params):
+        print("settings cookie: ", cherrypy.request.cookie, cherrypy.response.headers)
+        print("settings headers: ", cherrypy.response.headers)
         authorization.check_authorized()
         return cal.get_settings()
 
 
 if __name__ == '__main__':
-    cherrypy.quickstart(StringGenerator(), '/', "server.config")
+    cherrypy.quickstart(root=Calendar(), script_name='/calendar', config="server.prod.config")
