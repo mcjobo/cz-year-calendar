@@ -49,9 +49,8 @@ class Calendar(object):
         print("getting: ", params)
         authorization.validate_state_token(params)
         authorization.exchange_authorization_token("google", params)
-        #return "<!DOCTYPE html><html><head></head><body>Hello world</body></html>"
-        # return "<!DOCTYPE html><html><head></head><body><script>window.location.replace('https://bolay.org/calendar/')</script></body></html>"
-        raise cherrypy.HTTPRedirect('https://bolay.org/calendar/')
+        application = cherrypy.tree.apps['/calendar']
+        raise cherrypy.HTTPRedirect(application.config['global']['redirectBack'])
 
 
     @cherrypy.expose

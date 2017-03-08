@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+
+        <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
+
+        <link rel="import" href="bower_components/app-layout/app-layout.html">
+        <link rel="import" href="bower_components/paper-card/paper-card.html">
+        <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+        <link rel="import" href="bower_components/paper-input/paper-input.html">
+        <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+        <link rel="import" href="bower_components/iron-flex-layout/iron-flex-layout.html">
+        <link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+
+        <style is="custom-style" include="iron-flex iron-flex-alignment">
+
+            body {
+                font-family: 'Roboto', 'Noto', sans-serif;
+                font-size: 14px;
+                margin: 0;
+                padding: 24px;
+                background-color: var(--paper-grey-50);
+              }
+
+            paper-card {
+              width: 350px;
+              margin: 5px;
+            }
+
+           paper-icon-button {
+              color: var(--paper-grey-600);
+            }
+
+            paper-icon-button.white {
+              color: white !important;
+            }
+
+            .heading {
+                padding: 10px 15px;
+                margin-top: 20px;
+                background-color: #f3f3f3;
+                border: 1px solid #dedede;
+                border-top-left-radius: 5px;
+                border-top-right-radius: 5px;
+                font-size: 18px;
+                cursor: pointer;
+                -webkit-tap-highlight-color: rgba(0,0,0,0);
+                width: 100%;
+                text-align: left;
+              }
+
+            .content {
+                padding: 15px;
+                border: 1px solid #dedede;
+                border-top: none;
+                border-bottom-left-radius: 5px;
+                border-bottom-right-radius: 5px;
+                @apply(--shadow-elevation-2dp);
+              }
+
+            paper-input {
+                padding: 10px;
+
+            }
+            paper-card {
+              --paper-card-header: {
+                background-color: #4285f4;
+              };
+            }
+
+            app-header {
+                background-color: lightblue;
+            }
+
+           paper-icon-button.icon {
+                border-radius: 3px;
+                width: 160px;
+                height: 54px;
+            }
+
+        </style>
+
+    </head>
+    <body>
+        <template id="dom-bind" is="dom-bind">
+        <app-header fixed>
+          <app-toolbar>
+            <div main-title>CZ Kalender Applikation</div>
+          </app-toolbar>
+        </app-header>
+        <div class="layout horizontal wrap center-justified	">
+            <paper-card heading="Anmeldung" >
+                <div class="card-content">
+                  um dich anzumelden kannst zwischen diesen Identitäts Providern wählen
+                </div>
+                <div class="card-actions">
+                  <paper-icon-button onclick="google()" src="icon/google-signein.png" class="icon"></paper-icon-button>
+                </div>
+              </paper-card>
+
+
+
+        </div>
+
+        <iron-ajax id="auth-request" url="/calendar/get_auth_request" last-response="{{data}}" params='{"provider":"google"}' handle-as="text" auto></iron-ajax>
+    </template>
+        <script>
+            var google_url = "";
+            var dom = document.getElementById("dom-bind");
+
+            dom.addEventListener('dom-change', function(){
+                var authRequest = document.getElementById("auth-request");
+                authRequest.addEventListener('response', function(event, detail){
+                    console.log("response", authRequest.lastResponse, authRequest.data, dom.data, detail, event.detail.response, event);
+                    console.log("url: ", event.detail.response);
+                    google_url = event.detail.response;
+                });
+                authRequest.addEventListener('error', function(event){
+                    console.log("error", event, authRequest.lastError);
+                });
+            });
+            function google() {
+                window.open(google_url, "_self")
+            }
+
+        </script>
+    </body>
+</html>

@@ -16,14 +16,12 @@ def check_authorized():
     if 'ident' not in cookie:
         ident = hashlib.sha256(os.urandom(1024)).hexdigest()
         cookie["ident"] = ident
-        #cherrypy.response.cookie["calendar"] = json.dumps(cookie)
 
         realCookie = cherrypy.response.cookie
         realCookie["calendar"] = json.dumps(cookie)
         realCookie["calendar"]["path"] = "/"
 
         print("created new ident key")
-    # print("cookie", cherrypy.request.cookie["ident"])
     if "user" not in cookie:
         raise cherrypy.HTTPError(401)
     return "user" in cookie
@@ -92,8 +90,6 @@ def exchange_authorization_token(provider, params):
         realCookie = cherrypy.response.cookie
         realCookie["calendar"] = json.dumps(cookie)
         realCookie["calendar"]["path"] = "/"
-        #cherrypy.response.cookie["calendar"] = realCookie
-        #cherrypy.response.cookie["calendar"] = json.dumps(cookie)
 
 
 def decode_id_token(id_token):

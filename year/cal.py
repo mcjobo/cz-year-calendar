@@ -15,7 +15,6 @@ tz = pytz.timezone('Europe/Berlin')
 
 def draw_page(canvas,start,end):
     try:
-        print("parse holiday")
         holiday = parsecal.read_holiday()
         holiday_list = parsecal.populate_list(holiday, start, end)
         for holiday in holiday_list:
@@ -48,7 +47,7 @@ def draw_page(canvas,start,end):
 
         pdf.draw_date(canvas, entry_print)
     except Exception as e:
-        os.remove("static/cal.pdf")
+        os.remove("build/cal.pdf")
         raise e
 
 
@@ -72,7 +71,7 @@ def set_settings(params):
     config["user"]["username"] = params["username"]
     config["user"]["password"] = config["user"]["password"] if params["password"] == "??????" else params["password"]
     config["server"]["url"] = params["url"]
-    print("write", config.write())
+    # print("write", config.write())
 
 
 def get_settings():
@@ -83,4 +82,12 @@ def get_settings():
         "url": config["server"]["url"]
     }
     return json.dumps(result)
-#generate()
+
+
+
+
+
+
+
+
+generate()

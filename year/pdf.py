@@ -3,12 +3,14 @@ from calendar import monthrange
 from dateutil.relativedelta import relativedelta
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.pdfgen import canvas
+from datetime import datetime
+from babel.dates import format_date
 
 from year import dates
 
 borderLeft = 20
 borderRight = 20
-borderTop = 25
+borderTop = 35
 borderBottom = 20
 borderHorizontal = borderTop + borderBottom
 borderVertical = borderLeft + borderRight
@@ -32,7 +34,7 @@ def calculate_cell(canvas,  month, day):
 
 
 def draw_rect(canvas, month, day, fill):
-    print(month, day)
+    # print(month, day)
     cell = calculate_cell(canvas, month, day)
     fillRect = False
     if fill is not None:
@@ -103,6 +105,7 @@ def draw_multi_date(canvas, event):
     draw_multi_day_rect(canvas, event["start"], event["end"], [1, 0.6, 0.6])
     draw_vertical_string(canvas, event["start"], event["end"], event["summary"])
 
+
 def draw_date(canvas, event_list):
     tup = calc_dimension(canvas)
     cellWidth = tup[0]
@@ -133,7 +136,7 @@ def draw_date(canvas, event_list):
 
 
 def cut_string_to_size(canvas, text, size):
-  print("orig: ", canvas.stringWidth(text, canvas._fontname, canvas._fontsize), text, size)
+  # print("orig: ", canvas.stringWidth(text, canvas._fontname, canvas._fontsize), text, size)
   cut = False
   cutText = text
   textWidth = canvas.stringWidth(cutText, canvas._fontname, canvas._fontsize)
@@ -143,7 +146,7 @@ def cut_string_to_size(canvas, text, size):
     textWidth = canvas.stringWidth(cutText+"..", canvas._fontname, canvas._fontsize)
 
   cutText = cutText+".." if cut else cutText
-  print("cut: ", cutText)
+  # print("cut: ", cutText)
   return cutText
 
 
@@ -167,6 +170,8 @@ def create_Site(canvas, start, end, header):
     draw_days_str(canvas, start, end)
     draw_month_header(canvas, start, end)
     draw_header(canvas, header)
+    draw_icon(canvas)
+    draw_generated_at(canvas)
     canvas.setFont("Helvetica", 7)
 
 
@@ -180,23 +185,41 @@ def save (can):
     can.save()
 
 
-def draw_header(can, header):
-  pagesize = can._pagesize
-  old_font = can._fontsize
-  can.setFont("Helvetica", 12)
-  can.drawString(borderLeft, pagesize[1]-20 , header)
-  can.setFont("Helvetica", old_font)
+def draw_header(canvas, header):
+    canvas.saveState()
+    pagesize = canvas._pagesize
+    canvas.setFont("Helvetica", 12)
+    canvas.drawString(borderLeft + 30, pagesize[1] - 25, header)
+    canvas.restoreState()
 
 
 def draw_legend(canvas, legend1, legend2):
-  pagesize = canvas._pagesize
-  old_font = canvas._fontsize
-  canvas.setFont("Helvetica", 5)
-  canvas.drawRightString(pagesize[0]-borderRight, pagesize[1] - 10, legend1)
-  canvas.drawRightString(pagesize[0] - borderRight, pagesize[1] - 20, legend2)
-  canvas.setFont("Helvetica", old_font)
+    canvas.saveState()
+    pagesize = canvas._pagesize
+    canvas.setFont("Helvetica", 7)
+    canvas.drawRightString(pagesize[0]-borderRight, pagesize[1] - 15, legend1)
+    canvas.drawRightString(pagesize[0] - borderRight, pagesize[1] - 25, legend2)
+    canvas.restoreState()
+
+
+def draw_icon(canvas):
+    canvas.saveState()
+
+    pagesize = canvas._pagesize
+    canvas.drawImage("./year/CZ-Logo.png", borderLeft, pagesize[1]-30, height=25, width=25)
+
+    canvas.restoreState()
+
+
+def draw_generated_at(canvas):
+    canvas.saveState()
+    pagesize = canvas._pagesize
+    canvas.setFont("Helvetica", 7)
+    formatetDate = format_date(datetime.now().date(), locale='de_DE', format="long")
+    canvas.drawRightString(pagesize[0] - borderRight, borderBottom - 10, "erstellt am: " + formatetDate)
+    canvas.restoreState()
 
 
 def draw_holiday(canvas, date):
-  print(date)
+  # print(date)
   draw_rect(canvas, date.month , date.day, [0.95,0.95,1])
