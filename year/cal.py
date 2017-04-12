@@ -47,7 +47,8 @@ def draw_page(canvas,start,end):
 
         pdf.draw_date(canvas, entry_print)
     except Exception as e:
-        os.remove("build/cal.pdf")
+        if(os.path.isfile("build/cal.pdf")):
+            os.remove("build/cal.pdf")
         raise e
 
 
@@ -71,6 +72,7 @@ def set_settings(params):
     config["user"]["username"] = params["username"]
     config["user"]["password"] = config["user"]["password"] if params["password"] == "??????" else params["password"]
     config["server"]["url"] = params["url"]
+    config.write()
     # print("write", config.write())
 
 
